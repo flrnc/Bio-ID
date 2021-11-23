@@ -1,6 +1,7 @@
 from tkinter import*
 from tkinter import ttk
 from PIL import Image, ImageTk
+from tkinter import messagebox
 from feat import Features
 
 class Signin:
@@ -41,14 +42,14 @@ class Signin:
                         fg="white").place(x=260, y=320, width=180, height=40)
 
     def verify(self):
-        if self.username.get() == "" or self.password.get == "":
-            messagebox.showerror("Error", "All fields are required", parent=self.root)
-        elif self.username.get() == "admin" or self.password.get == "123":
+        if self.username.get() == "" or self.password.get() == "":
+            messagebox.showerror("Error", "All fields are required") #, parent=self.root)
+        elif self.username.get() == "admin" and self.password.get() == "123":
             # messagebox.showinfo("Success", "Welcome", parent=self.root)
             self.feature_window()
         else:
-            messagebox.showerror("Error", "Invalid Username or Password", parent=self.root)
-
+            messagebox.showerror("Error", "Invalid Username or Password") #, parent=self.root)
+            
     def feature_window(self):
         self.new_window = Toplevel(self.root)
         self.app = Features(self.new_window)
