@@ -1,5 +1,9 @@
 from tkinter import*
 from PIL import Image, ImageTk
+from tkinter import ttk
+from tkinter import messagebox
+import mysql.connector
+
 
 class Add:
     def __init__(self, root):
@@ -8,10 +12,20 @@ class Add:
         self.root.geometry('1250x800+340+100')
         self.root.resizable(False, False)
 
+        # Variables
+        self.var_resnum=StringVar()
+        self.var_name = StringVar()
+        self.var_dob = StringVar()
+        self.var_sex = StringVar()
+        self.var_nationality = StringVar()
+        self.var_num = StringVar()
+        self.var_email = StringVar()
+        self.var_address = StringVar()
+
         # BG
         self.bg = ImageTk.PhotoImage(file="bioID2.png")
         self.bg_image = Label(self.root, image=self.bg).place(x=0, y=0, relwidth=1, relheight=1)
-        
+
         # LabelFrame
         lblframe = LabelFrame(self.root, bd=2,relief=RIDGE, text="Resident Information",
                               font=("Monserrat", 15, "bold"), padx=2)
@@ -26,19 +40,19 @@ class Add:
         # Name
         lbl_name = Label(lblframe, text="Complete Name", font=("Monserrat", 12, "bold"), padx=2, pady=10)
         lbl_name.grid(row=1, column=0, sticky=W)
-        entry_name = ttk.Entry(lblframe, width=25, font=("Monterrat", 10))
+        entry_name = ttk.Entry(lblframe, textvariable=self.var_name, width=25, font=("Monterrat", 10))
         entry_name.grid(row=1, column=1)
 
         # DOB
         lbl_dob = Label(lblframe, text="Date of Birth", font=("Monserrat", 12, "bold"), padx=2, pady=10)
         lbl_dob.grid(row=2, column=0, sticky=W)
-        entry_dob = ttk.Entry(lblframe, width=25, font=("Monterrat", 10))
+        entry_dob = ttk.Entry(lblframe, textvariable=self.var_dob, width=25, font=("Monterrat", 10))
         entry_dob.grid(row=2, column=1)
 
         # Sex
         lbl_sex = Label(lblframe, text="Sex", font=("Monserrat", 12, "bold"), padx=2, pady=10)
         lbl_sex.grid(row=3, column=0, sticky=W)
-        combo_sex=ttk.Combobox(lblframe, font=("Montserrat", 12), width=18, state="readonly")
+        combo_sex=ttk.Combobox(lblframe, textvariable=self.var_sex, font=("Montserrat", 12), width=18, state="readonly")
         combo_sex["value"]=("Male", "Female")
         combo_sex.current(0)
         combo_sex.grid(row=3,column=1)
@@ -46,33 +60,33 @@ class Add:
         # Nationality
         lbl_sex = Label(lblframe, text="Nationality", font=("Monserrat", 12, "bold"), padx=2, pady=10)
         lbl_sex.grid(row=4, column=0, sticky=W)
-        entry_sex = ttk.Entry(lblframe, width=25, font=("Monterrat", 10))
+        entry_sex = ttk.Entry(lblframe, textvariable=self.var_nationality, width=25, font=("Monterrat", 10))
         entry_sex.grid(row=4, column=1)
 
         # PhoneNumber
         lbl_num = Label(lblframe, text="Phone Number", font=("Monserrat", 12, "bold"), padx=2, pady=10)
         lbl_num.grid(row=5, column=0, sticky=W)
-        entry_num = ttk.Entry(lblframe, width=25, font=("Monterrat", 10))
+        entry_num = ttk.Entry(lblframe, textvariable=self.var_num, width=25, font=("Monterrat", 10))
         entry_num.grid(row=5, column=1)
 
         # Email
         lbl_sex = Label(lblframe, text="Email Address", font=("Monserrat", 12, "bold"), padx=2, pady=10)
         lbl_sex.grid(row=6, column=0, sticky=W)
-        entry_sex = ttk.Entry(lblframe, width=25, font=("Monterrat", 10))
+        entry_sex = ttk.Entry(lblframe, textvariable=self.var_email, width=25, font=("Monterrat", 10))
         entry_sex.grid(row=6, column=1)
 
         # Address
         lbl_addrs = Label(lblframe, text="Address", font=("Monserrat", 12, "bold"), padx=2, pady=10)
         lbl_addrs.grid(row=7, column=0, sticky=W)
-        entry_addrs = ttk.Entry(lblframe, width=25, font=("Monterrat", 10))
+        entry_addrs = ttk.Entry(lblframe, textvariable=self.var_address, width=25, font=("Monterrat", 10))
         entry_addrs.grid(row=7, column=1)
 
         # Buttons
         btn_capture = Button(root, text="Take a picture", font=("Montserrat", 12, "bold"), bg="black", fg="white")
         btn_capture.place(x=2, y=575, width=350, height=50)
 
-        btn_add=Button(root, text="Add", font=("Montserrat", 12, "bold"), bg="black", fg="white")
-        btn_add.place(x=370, y=575, width=350, height=50)
+        btn_save=Button(root, text="Save", command=self.save_data, font=("Montserrat", 12, "bold"), bg="black", fg="white")
+        btn_save.place(x=370, y=575, width=350, height=50)
 
         btn_upd = Button(root, text="Update", font=("Montserrat", 12, "bold"), bg="black", fg="white")
         btn_upd.place(x=870, y=575, width=350, height=50)
@@ -94,7 +108,8 @@ class Add:
         scroll_x=Scrollbar(details_table,orient=HORIZONTAL)
         scroll_y=Scrollbar(details_table, orient=VERTICAL)
 
-        self.Resident_Details_Table=ttk.Treeview(details_table,column=("resnum", "name", "dob", "sex", "nationality", "num", "email", "address"),
+        self.Resident_Details_Table=ttk.Treeview(details_table,column=("resnum", "name",
+                    "dob", "sex", "nationality", "num", "email", "address"),
                                                  xscrollcommand=scroll_x.set, yscrollcommand=scroll_y.set)
 
         scroll_x.pack(side=BOTTOM, fill=X)
@@ -123,6 +138,21 @@ class Add:
         self.Resident_Details_Table.column("address", width=100)
 
         self.Resident_Details_Table.pack(fill=BOTH,expand=1)
+
+
+    # Function Declaration
+    def save_data(self):
+        if self.var_resnum.get()=="" or self.var_name.get()=="":
+            messagebox.showerror("Error", "All Fields are required.")
+        else:
+            pass
+
+
+
+
+
+
+
 
 if __name__ == "__main__":
     root = Tk()
