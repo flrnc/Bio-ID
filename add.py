@@ -13,7 +13,7 @@ class Add:
         self.root.resizable(False, False)
 
         # Variables
-        self.var_resnum=StringVar()
+        #self.var_resnum=StringVar()
         self.var_name = StringVar()
         self.var_dob = StringVar()
         self.var_sex = StringVar()
@@ -32,10 +32,10 @@ class Add:
         lblframe.place(x=5,y=150,width=350, height=400)
 
         # Labels and Entry
-        lbl_rest_num=Label(lblframe, text="Resident No.", font=("Monserrat", 12, "bold"),padx=2,pady=10)
+        """lbl_rest_num=Label(lblframe, text="Resident No.", font=("Monserrat", 12, "bold"),padx=2,pady=10)
         lbl_rest_num.grid(row=0,column=0, sticky=W)
         entry_rest_num=ttk.Entry(lblframe,width=25, font=("Monterrat", 10))
-        entry_rest_num.grid(row=0,column=1)
+        entry_rest_num.grid(row=0,column=1)"""
 
         # Name
         lbl_name = Label(lblframe, text="Complete Name", font=("Monserrat", 12, "bold"), padx=2, pady=10)
@@ -52,16 +52,14 @@ class Add:
         # Sex
         lbl_sex = Label(lblframe, text="Sex", font=("Monserrat", 12, "bold"), padx=2, pady=10)
         lbl_sex.grid(row=3, column=0, sticky=W)
-        combo_sex=ttk.Combobox(lblframe, textvariable=self.var_sex, font=("Montserrat", 12), width=18, state="readonly")
-        combo_sex["value"]=("Male", "Female")
-        combo_sex.current(0)
-        combo_sex.grid(row=3,column=1)
+        entry_sex=ttk.Entry(lblframe, textvariable=self.var_sex, width=25, font=("Monterrat", 10))
+        entry_sex.grid(row=3, column=1)
 
         # Nationality
-        lbl_sex = Label(lblframe, text="Nationality", font=("Monserrat", 12, "bold"), padx=2, pady=10)
-        lbl_sex.grid(row=4, column=0, sticky=W)
-        entry_sex = ttk.Entry(lblframe, textvariable=self.var_nationality, width=25, font=("Monterrat", 10))
-        entry_sex.grid(row=4, column=1)
+        lbl_nation = Label(lblframe, text="Nationality", font=("Monserrat", 12, "bold"), padx=2, pady=10)
+        lbl_nation.grid(row=4, column=0, sticky=W)
+        entry_nation = ttk.Entry(lblframe, textvariable=self.var_nationality, width=25, font=("Monterrat", 10))
+        entry_nation.grid(row=4, column=1)
 
         # PhoneNumber
         lbl_num = Label(lblframe, text="Phone Number", font=("Monserrat", 12, "bold"), padx=2, pady=10)
@@ -108,7 +106,7 @@ class Add:
         scroll_x=Scrollbar(details_table,orient=HORIZONTAL)
         scroll_y=Scrollbar(details_table, orient=VERTICAL)
 
-        self.Resident_Details_Table=ttk.Treeview(details_table,column=("resnum", "name",
+        self.Resident_Details_Table=ttk.Treeview(details_table,column=("name",
                     "dob", "sex", "nationality", "num", "email", "address"),
                                                  xscrollcommand=scroll_x.set, yscrollcommand=scroll_y.set)
 
@@ -117,7 +115,7 @@ class Add:
         scroll_x.config(command=self.Resident_Details_Table.xview)
         scroll_y.config(command=self.Resident_Details_Table.yview)
 
-        self.Resident_Details_Table.heading("resnum", text="Resident No")
+        #self.Resident_Details_Table.heading("resnum", text="Resident No")
         self.Resident_Details_Table.heading("name", text="Complete Name")
         self.Resident_Details_Table.heading("dob", text="Date of Birth")
         self.Resident_Details_Table.heading("sex", text="Sex")
@@ -128,7 +126,7 @@ class Add:
 
         self.Resident_Details_Table["show"]="headings"
 
-        self.Resident_Details_Table.column("resnum",width=100)
+        #self.Resident_Details_Table.column("resnum",width=100)
         self.Resident_Details_Table.column("name", width=100)
         self.Resident_Details_Table.column("dob", width=100)
         self.Resident_Details_Table.column("sex", width=100)
@@ -138,17 +136,45 @@ class Add:
         self.Resident_Details_Table.column("address", width=100)
 
         self.Resident_Details_Table.pack(fill=BOTH,expand=1)
-
+        self.fetch_data()
 
     # Function Declaration
     def save_data(self):
-        if self.var_resnum.get()=="" or self.var_name.get()=="":
-            messagebox.showerror("Error", "All Fields are required.")
+        if self.var_name.get()=="":
+            messagebox.showerror("Error", "All Fields are required.", parent=self.root)
         else:
-            pass
+            try:
+                conn=mysql.connector.connect(host="localhost", username="root", password="Mamadaw12!", database="bioid")
+                my_cursor=conn.cursor()
+                my_cursor.execute("insert into resident values(%s,%s,%s,%s,%s,%s,%s)", (
+                                                                                            self.var_name.get(),
+                                                                                            self.var_dob.get(),
+                                                                                            self.var_sex.get(),
+                                                                                            self.var_nationality.get(),
+                                                                                            self.var_num.get(),
+                                                                                            self.var_email.get(),
+                                                                                            self.var_address.get()
+                                                                                        ))
+                conn.commit()
+                self.fetch_data()
+                conn.close()
+                messagebox.showinfo("Success", "Resident details has been added successfully", parent=self.root)
+            except Exception as es:
+                messagebox.showerror("Error", f"Due to :{str(es)}", parent=self.root)
 
+    # fetch data
+    def fetch_data(self):
+        conn = mysql.connector.connect(host="localhost", username="root", password="Mamadaw12!", database="bioid")
+        my_cursor = conn.cursor()
+        my_cursor.execute("select * from resident")
+        data=my_cursor.fetchall()
 
-
+        if len(data)!= 0:
+            self.Resident_Details_Table.delete(*self.Resident_Details_Table.get_children())
+            for i in data:
+                self.Resident_Details_Table.insert("",END,values=i)
+            conn.commit()
+        conn.close()
 
 
 
