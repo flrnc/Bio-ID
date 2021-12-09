@@ -13,7 +13,7 @@ class Add:
         self.root.resizable(False, False)
 
         # Variables
-        #self.var_resnum=StringVar()
+        self.var_resnum=StringVar()
         self.var_name = StringVar()
         self.var_dob = StringVar()
         self.var_sex = StringVar()
@@ -32,10 +32,10 @@ class Add:
         lblframe.place(x=5,y=150,width=350, height=400)
 
         # Labels and Entry
-        """lbl_rest_num=Label(lblframe, text="Resident No.", font=("Monserrat", 12, "bold"),padx=2,pady=10)
+        lbl_rest_num=Label(lblframe, text="Resident No.", font=("Monserrat", 12, "bold"),padx=2,pady=10)
         lbl_rest_num.grid(row=0,column=0, sticky=W)
-        entry_rest_num=ttk.Entry(lblframe,width=25, font=("Monterrat", 10))
-        entry_rest_num.grid(row=0,column=1)"""
+        entry_rest_num=ttk.Entry(lblframe, textvariable=self.var_resnum, width=25, font=("Monterrat", 10))
+        entry_rest_num.grid(row=0,column=1)
 
         # Name
         lbl_name = Label(lblframe, text="Complete Name", font=("Monserrat", 12, "bold"), padx=5, pady=10)
@@ -105,14 +105,14 @@ class Add:
         scroll_x=ttk.Scrollbar(details_table,orient=HORIZONTAL)
         scroll_y=ttk.Scrollbar(details_table,orient=VERTICAL)
 
-        self.Resident_Details_Table=ttk.Treeview(details_table,column=("name","dob", "sex", "nationality", "num", "email", "address"),xscrollcommand=scroll_x.set, yscrollcommand=scroll_y.set)
+        self.Resident_Details_Table=ttk.Treeview(details_table,column=("resnum","name","dob", "sex", "nationality", "num", "email", "address"),xscrollcommand=scroll_x.set, yscrollcommand=scroll_y.set)
 
         scroll_x.pack(side=BOTTOM,fill=X)
         scroll_y.pack(side=RIGHT,fill=Y)
         scroll_x.config(command=self.Resident_Details_Table.xview)
         scroll_y.config(command=self.Resident_Details_Table.yview)
 
-        #self.Resident_Details_Table.heading("resnum", text="Resident No")
+        self.Resident_Details_Table.heading("resnum", text="Resident No")
         self.Resident_Details_Table.heading("name", text="Complete Name")
         self.Resident_Details_Table.heading("dob", text="Date of Birth")
         self.Resident_Details_Table.heading("sex", text="Sex")
@@ -123,7 +123,7 @@ class Add:
 
         self.Resident_Details_Table["show"]="headings"
 
-        #self.Resident_Details_Table.column("resnum",width=100)
+        self.Resident_Details_Table.column("resnum",width=100)
         self.Resident_Details_Table.column("name", width=100)
         self.Resident_Details_Table.column("dob", width=100)
         self.Resident_Details_Table.column("sex", width=100)
@@ -138,13 +138,14 @@ class Add:
 
     # Function Declaration = yung pagstore ng input data sa db
     def save_data(self):
-        if self.var_name.get()=="" or self.var_dob.get()=="" or self.var_sex.get()=="" or self.var_nationality.get()=="" or self.var_num.get()=="" or self.var_email.get()=="" or self.var_address.get()=="":
+        if self.var_resnum.get()=="" or self.var_name.get()=="" or self.var_dob.get()=="" or self.var_sex.get()=="" or self.var_nationality.get()=="" or self.var_num.get()=="" or self.var_email.get()=="" or self.var_address.get()=="":
             messagebox.showerror("Error", "All Fields are required.", parent=self.root)
         else:
             try:
                 conn=mysql.connector.connect(host="localhost", username="root", password="Mamadaw12!", database="bioid")
                 my_cursor=conn.cursor()
-                my_cursor.execute("insert into resident values(%s,%s,%s,%s,%s,%s,%s)", (
+                my_cursor.execute("insert into resident values(%s,%s,%s,%s,%s,%s,%s,%s)", (
+                                                                                            self.var_resnum.get(),
                                                                                             self.var_name.get(),
                                                                                             self.var_dob.get(),
                                                                                             self.var_sex.get(),
@@ -180,17 +181,18 @@ class Add:
         content=self.Resident_Details_Table.item(cursor_focus)
         data=content["values"]
 
-        self.var_name.set(data[0]),
-        self.var_dob.set(data[1]),
-        self.var_sex.set(data[2]),
-        self.var_nationality.set(data[3]),
-        self.var_num.set(data[4]),
-        self.var_email.set(data[5]),
-        self.var_address.set(data[6])
+        self.var_resnum.set(data[0]),
+        self.var_name.set(data[1]),
+        self.var_dob.set(data[2]),
+        self.var_sex.set(data[3]),
+        self.var_nationality.set(data[4]),
+        self.var_num.set(data[5]),
+        self.var_email.set(data[6]),
+        self.var_address.set(data[7])
 
     # update function
     def update_data(self):
-        if self.var_name.get() == "" or self.var_dob.get() == "" or self.var_sex.get() == "" or self.var_nationality.get() == "" or self.var_num.get() == "" or self.var_email.get() == "" or self.var_address.get() == "":
+        if self.var_resnum.get() == "" or self.var_name.get() == "" or self.var_dob.get() == "" or self.var_sex.get() == "" or self.var_nationality.get() == "" or self.var_num.get() == "" or self.var_email.get() == "" or self.var_address.get() == "":
             messagebox.showerror("Error", "All Fields are required.", parent=self.root)
         else:
             try:
@@ -198,7 +200,7 @@ class Add:
                 if update>0:
                     conn = mysql.connector.connect(host="localhost", username="root", password="Mamadaw12!", database="bioid")
                     my_cursor = conn.cursor()
-                    my_cursor.execute("update resident set Name=%s,DOB=%s,Sex=%s,Nationality=%s,CPNum=%s,Email=%s,Address=%s",(
+                    my_cursor.execute("update resident set Name=%s,DOB=%s,Sex=%s,Nationality=%s,CPNum=%s,Email=%s,Address=%s where ResNum=%s",(
 
                                                                                             self.var_name.get(),
                                                                                             self.var_dob.get(),
@@ -206,7 +208,8 @@ class Add:
                                                                                             self.var_nationality.get(),
                                                                                             self.var_num.get(),
                                                                                             self.var_email.get(),
-                                                                                            self.var_address.get()
+                                                                                            self.var_address.get(),
+                                                                                            self.var_resnum.get()
                                                                                         ))
                 else:
                     if not update:
@@ -220,17 +223,17 @@ class Add:
 
     # delete function
     def delete_data(self):
-        if self.var_name.get() == "" or self.var_dob.get() == "" or self.var_sex.get() == "" or self.var_nationality.get() == "" or self.var_num.get() == "" or self.var_email.get() == "" or self.var_address.get() == "":
+        if self.var_resnum.get()=="":
             messagebox.showerror("Error", "Select a specific resident.", parent=self.root)
         else:
             try:
-                delete=messagebox.askyesno("Delete Resident", "Do you want to delete this resident?", parent=self.root)
-                if delete>0:
-                    conn = mysql.connector.connect(host="localhost", username="root", password="Mamadaw12!", database="bioid")
+                delete = messagebox.askyesno("Delete Resident", "Do you want to delete this resident?",parent=self.root)
+                if delete > 0:
+                    conn = mysql.connector.connect(host="localhost", username="root", password="Mamadaw12!",database="bioid")
                     my_cursor = conn.cursor()
-                    sql="delete from resident where Name=%s"
-                    val = (self.var_name.get(),)
-                    my_cursor.execute(sql,val)
+                    sql="delete from resident where ResNum=%s"
+                    val=(self.var_resnum.get(),)
+                    my_cursor.execute(sql, val)
                 else:
                     if not delete:
                         return
@@ -244,6 +247,7 @@ class Add:
 
     # reset
     def reset_data(self):
+        self.var_resnum.set("")
         self.var_name.set("")
         self.var_dob.set("")
         self.var_sex.set("")
