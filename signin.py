@@ -3,6 +3,7 @@ from tkinter import ttk
 from PIL import Image, ImageTk
 from tkinter import messagebox
 from feat import Features
+from signup import Signup
 
 class Signin:
     def __init__(self, root):
@@ -39,7 +40,7 @@ class Signin:
         # Button
         login = Button(Frame_login, command=self.verify, cursor="hand2", text="Login", bd=0,
                        font=("Montserrat", 15), bg="black", fg="white").place(x=70, y=320, width=180, height=40)
-        signup = Button(Frame_login, cursor="hand2", text="Signup", bd=0, font=("Montserrat", 15), bg="black",
+        signup = Button(Frame_login, command=self.signup_window, cursor="hand2", text="Signup", bd=0, font=("Montserrat", 15), bg="black",
                         fg="white").place(x=260, y=320, width=180, height=40)
         forgot = Button(Frame_login, cursor="hand2", text="Forgot Password?", bd=0, font=("Montserrat", 10), bg="white",
                         fg="grey", activebackground="white").place(x=320, y=280, width=120, height=20)
@@ -58,6 +59,9 @@ class Signin:
         self.new_window = Toplevel(self.root)
         self.app = Features(self.new_window)
 
+    def signup_window(self):
+        self.new_window = Toplevel(self.root)
+        self.app = Signup(self.new_window)
 
 if __name__ == "__main__":
     root = Tk()
