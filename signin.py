@@ -1,69 +1,58 @@
 from tkinter import*
 from tkinter import ttk
+import tkinter
 from PIL import Image, ImageTk
 from tkinter import messagebox
-from feat import Features
-from signup import Signup
+from search import Search
+from add import Add
+from services import Services
 
-class Signin:
+class Features:
     def __init__(self, root):
         self.root = root
-        self.root.title("BIO ID Login")
+        self.root.title("BIO ID")
         self.root.geometry('1250x800+340+100')
         self.root.resizable(False, False)
 
-        # BG
-        self.bg = ImageTk.PhotoImage(file="bg.png")
+        self.bg = ImageTk.PhotoImage(file="bioID2.png")
         self.bg_image = Label(self.root, image=self.bg).place(x=0, y=0, relwidth=1, relheight=1)
 
-        # Login Frame
-        Frame_login = Frame(self.root, bg="white")
-        Frame_login.place(x=370, y=200, width=500, height=400)
+        # features button
+        search_btn = Button(root, command=self.search_details, cursor="hand2", text="Search", bd=0, font=("Montserrat", 25), bg="black",
+                        fg="white").place(x=370, y=270, width=500, height=100)
+        add_btn = Button(root, command=self.add_details, cursor="hand2", text="Resident", bd=0, font=("Montserrat", 25), bg="black",
+                            fg="white").place(x=370, y=420, width=500, height=100)
+        services_btn = Button(root, command=self.services_details, cursor="hand2", text="Services", bd=0, font=("Montserrat", 25), bg="black",
+                            fg="white").place(x=370, y=570, width=500, height=100)
 
-        # Title
-        title = Label(Frame_login, text="BIO ID", font=("Montserrat", 35, "bold"), fg="black", bg="white").place(
-            x=180, y=40)
-
-        # Username
-        lbl_user = Label(Frame_login, text="Username", font=("Montserrat", 12, "bold"), fg="grey",
-                         bg="white").place(x=70, y=130)
-        self.username = Entry(Frame_login, font=("Montserrat", 12), bg="white")
-        self.username.place(x=70, y=160, width=370, height=35)
-
-        # Password
-        lbl_pass = Label(Frame_login, text="Password", font=("Montserrat", 12, "bold"), fg="grey",
-                         bg="white").place(x=70, y=205)
-        self.password = Entry(Frame_login, font=("Montserrat", 12), bg="white", show="*")
-        self.password.place(x=70, y=235, width=370, height=35)
+        # logout
+        log = Image.open(r"C:\Users\Florence\PycharmProjects\pythonProject\venv\exit.png")
+        log = log.resize((150,150), Image.ANTIALIAS)
+        self.photolog=ImageTk.PhotoImage(log)
+        logout_btn=Button(root, image=self.photolog, bd=0, cursor="hand2", command=self.exit)
+        logout_btn.place(x=1150, y=34, width=70, height=70)
 
 
-        # Button
-        login = Button(Frame_login, command=self.verify, cursor="hand2", text="Login", bd=0,
-                       font=("Montserrat", 15), bg="black", fg="white").place(x=70, y=320, width=180, height=40)
-        signup = Button(Frame_login, command=self.signup_window, cursor="hand2", text="Signup", bd=0, font=("Montserrat", 15), bg="black",
-                        fg="white").place(x=260, y=320, width=180, height=40)
-        forgot = Button(Frame_login, cursor="hand2", text="Forgot Password?", bd=0, font=("Montserrat", 10), bg="white",
-                        fg="grey", activebackground="white").place(x=320, y=280, width=120, height=20)
+    def search_details(self):
+        self.new_window=Toplevel(self.root)
+        self.app=Search(self.new_window)
 
+    def add_details(self):
+        self.new_window=Toplevel(self.root)
+        self.app=Add(self.new_window)
 
-    def verify(self):
-        if self.username.get() == "" or self.password.get() == "":
-            messagebox.showerror("Error", "All fields are required") #, parent=self.root)
-        elif self.username.get() == "admin" and self.password.get() == "123":
-            # messagebox.showinfo("Success", "Welcome", parent=self.root)
-            self.feature_window()
+    def services_details(self):
+        self.new_window=Toplevel(self.root)
+        self.app=Services(self.new_window)
+
+    def exit(self):
+        self.exit=tkinter.messagebox.askyesno("BIO ID", "Are you sure you want to exit?", parent=self.root)
+        if self.exit > 0:
+            self.root.destroy()
         else:
-            messagebox.showerror("Error", "Invalid Username or Password") #, parent=self.root)
-
-    def feature_window(self):
-        self.new_window = Toplevel(self.root)
-        self.app = Features(self.new_window)
-
-    def signup_window(self):
-        self.new_window = Toplevel(self.root)
-        self.app = Signup(self.new_window)
+            return
 
 if __name__ == "__main__":
     root = Tk()
-    app = Signin(root)
+    obj = Features(root)
     root.mainloop()
