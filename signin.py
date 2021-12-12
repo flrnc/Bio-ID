@@ -22,7 +22,12 @@ class Signin:
 
         # Title
         title = Label(Frame_login, text="BIO ID", font=("Montserrat", 35, "bold"), fg="black", bg="white").place(
-            x=180, y=40)
+            x=200, y=40)
+        title_img = Image.open(r"logo.png")
+        title_img = title_img.resize((50,50), Image.ANTIALIAS)
+        self.title = ImageTk.PhotoImage(title_img)
+        lbltitle = Label(image=self.title, bd=0)
+        lbltitle.place(x=510, y=245, width=50, height=50)
 
         # Username
         lbl_user = Label(Frame_login, text="Username", font=("Montserrat", 12, "bold"), fg="grey",
