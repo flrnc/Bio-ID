@@ -33,7 +33,7 @@ class Signin:
         # Password
         lbl_pass = Label(Frame_login, text="Password", font=("Montserrat", 12, "bold"), fg="grey",
                          bg="white").place(x=70, y=205)
-        self.password = Entry(Frame_login, font=("Montserrat", 12), bg="white")
+        self.password = Entry(Frame_login, font=("Montserrat", 12), bg="white", show="*")
         self.password.place(x=70, y=235, width=370, height=35)
 
 
