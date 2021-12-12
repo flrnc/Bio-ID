@@ -27,12 +27,11 @@ class Add:
         self.bg_image = Label(self.root, image=self.bg).place(x=0, y=0, relwidth=1, relheight=1)
 
         # LabelFrame
-        lblframe = LabelFrame(self.root, bd=2,relief=RIDGE, text="Resident Information",
-                              font=("Monserrat", 15, "bold"), padx=2)
+        lblframe = LabelFrame(self.root, bd=2,relief=RIDGE, text="Resident Information", font=("Monserrat", 15, "bold"), padx=2)
         lblframe.place(x=5,y=150,width=350, height=400)
 
         # Labels and Entry
-        lbl_rest_num=Label(lblframe, text="Resident No.", font=("Monserrat", 12, "bold"),padx=2,pady=10)
+        lbl_rest_num=Label(lblframe, text="Resident No.", font=("Monserrat", 12, "bold"),padx=5,pady=10)
         lbl_rest_num.grid(row=0,column=0, sticky=W)
         entry_rest_num=ttk.Entry(lblframe, textvariable=self.var_resnum, width=25, font=("Monterrat", 10))
         entry_rest_num.grid(row=0,column=1)
@@ -81,19 +80,26 @@ class Add:
 
         # Buttons
         btn_capture = Button(root, text="Take a picture", font=("Montserrat", 12, "bold"), bg="black", fg="white")
-        btn_capture.place(x=2, y=575, width=350, height=50)
+        btn_capture.place(x=11, y=575, width=338, height=190)
 
         btn_save=Button(root, text="Save", command=self.save_data, font=("Montserrat", 12, "bold"), bg="black", fg="white")
-        btn_save.place(x=370, y=575, width=350, height=50)
+        btn_save.place(x=390, y=575, width=350, height=80)
 
         btn_upd = Button(root, text="Update", command=self.update_data, font=("Montserrat", 12, "bold"), bg="black", fg="white")
-        btn_upd.place(x=870, y=575, width=350, height=50)
+        btn_upd.place(x=870, y=575, width=350, height=80)
 
         btn_del = Button(root, text="Delete", command=self.delete_data, font=("Montserrat", 12, "bold"), bg="black", fg="white")
-        btn_del.place(x=370, y=685, width=350, height=50)
+        btn_del.place(x=390, y=685, width=350, height=80)
 
         btn_reset = Button(root, text="Reset", command=self.reset_data, font=("Montserrat", 12, "bold"), bg="black", fg="white")
-        btn_reset.place(x=870, y=685, width=350, height=50)
+        btn_reset.place(x=870, y=685, width=350, height=80)
+
+        # back
+        back = Image.open(r"C:\Users\Florence\PycharmProjects\pythonProject\venv\back.png")
+        back = back.resize((70, 70), Image.ANTIALIAS)
+        self.photoback = ImageTk.PhotoImage(back)
+        back_btn = Button(root, image=self.photoback, bd=0, cursor="hand2")
+        back_btn.place(x=20, y=34, width=70, height=70)
 
         # TableFrame
         table_frame = LabelFrame(self.root, bd=2, relief=RIDGE, text="Resident Details",font=("Monserrat", 15, "bold"), padx=2)
@@ -123,14 +129,14 @@ class Add:
 
         self.Resident_Details_Table["show"]="headings"
 
-        self.Resident_Details_Table.column("resnum",width=100)
-        self.Resident_Details_Table.column("name", width=100)
-        self.Resident_Details_Table.column("dob", width=100)
-        self.Resident_Details_Table.column("sex", width=100)
-        self.Resident_Details_Table.column("nationality", width=100)
-        self.Resident_Details_Table.column("num", width=100)
-        self.Resident_Details_Table.column("email", width=100)
-        self.Resident_Details_Table.column("address", width=100)
+        self.Resident_Details_Table.column("resnum",anchor=CENTER, width=70)
+        self.Resident_Details_Table.column("name", anchor=CENTER, width=120)
+        self.Resident_Details_Table.column("dob", anchor=CENTER, width=70)
+        self.Resident_Details_Table.column("sex", anchor=CENTER, width=50)
+        self.Resident_Details_Table.column("nationality", anchor=CENTER, width=50)
+        self.Resident_Details_Table.column("num", anchor=CENTER, width=60)
+        self.Resident_Details_Table.column("email", anchor=CENTER, width=100)
+        self.Resident_Details_Table.column("address", anchor=CENTER, width=100)
 
         self.Resident_Details_Table.pack(fill=BOTH,expand=1)
         self.Resident_Details_Table.bind("<ButtonRelease>", self.get_cursor)
@@ -193,7 +199,7 @@ class Add:
     # update function
     def update_data(self):
         if self.var_resnum.get() == "" or self.var_name.get() == "" or self.var_dob.get() == "" or self.var_sex.get() == "" or self.var_nationality.get() == "" or self.var_num.get() == "" or self.var_email.get() == "" or self.var_address.get() == "":
-            messagebox.showerror("Error", "All Fields are required.", parent=self.root)
+            messagebox.showerror("Error", "Select a specific resident.", parent=self.root)
         else:
             try:
                 update=messagebox.askyesno("Update", "Do you want to update this resident details?", parent=self.root)
