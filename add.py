@@ -81,6 +81,9 @@ class Add:
         # Buttons
         btn_capture = Button(root, text="Take a picture", font=("Montserrat", 12, "bold"), bg="black", fg="white")
         btn_capture.place(x=11, y=575, width=338, height=190)
+        
+        btn_train = Button(root, text="Train", font=("Montserrat", 12, "bold"), bg="black", fg="white")
+        btn_train.place(x=11, y=685, width=338, height=80)
 
         btn_save=Button(root, text="Save", command=self.save_data, font=("Montserrat", 12, "bold"), bg="black", fg="white")
         btn_save.place(x=390, y=575, width=350, height=80)
