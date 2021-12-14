@@ -80,8 +80,8 @@ class Add:
 
         # Buttons
         btn_capture = Button(root, text="Take a picture", font=("Montserrat", 12, "bold"), bg="black", fg="white")
-        btn_capture.place(x=11, y=575, width=338, height=190)
-        
+        btn_capture.place(x=11, y=575, width=338, height=80)
+
         btn_train = Button(root, text="Train", font=("Montserrat", 12, "bold"), bg="black", fg="white")
         btn_train.place(x=11, y=685, width=338, height=80)
 
@@ -167,6 +167,7 @@ class Add:
                 self.fetch_data()
                 conn.close()
                 messagebox.showinfo("Success", "Resident details has been added successfully", parent=self.root)
+                self.reset_data()
             except Exception as es:
                 messagebox.showerror("Error", f"Due to :{str(es)}", parent=self.root)
 
@@ -227,6 +228,7 @@ class Add:
                 conn.commit()
                 self.fetch_data()
                 conn.close()
+                self.reset_data()
             except Exception as es:
                 messagebox.showerror("Error", f"Due to: {str(es)}", parent=self.root)
 
@@ -243,6 +245,7 @@ class Add:
                     sql="delete from resident where ResNum=%s"
                     val=(self.var_resnum.get(),)
                     my_cursor.execute(sql, val)
+                    self.reset_data()
                 else:
                     if not delete:
                         return
