@@ -51,8 +51,10 @@ class Add:
         # Sex
         lbl_sex = Label(lblframe, text="Sex", font=("Monserrat", 12, "bold"), padx=5, pady=10)
         lbl_sex.grid(row=3, column=0, sticky=W)
-        entry_sex=ttk.Entry(lblframe, textvariable=self.var_sex, width=25, font=("Monterrat", 10))
-        entry_sex.grid(row=3, column=1, sticky=W)
+        combo_sex = ttk.Combobox(lblframe, textvariable=self.var_sex, width=22, font=("Monterrat", 10))
+        combo_sex["values"] = ("", "Male", "Female")
+        combo_sex.current(0)
+        combo_sex.grid(row=3, column=1, padx=2, pady=10)
 
         # Nationality
         lbl_nation = Label(lblframe, text="Nationality", font=("Monserrat", 12, "bold"), padx=5, pady=10)
