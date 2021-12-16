@@ -15,6 +15,7 @@ class Services:
         self.var_resNum = StringVar()
         self.var_resName = StringVar()
         self.var_resService = StringVar()
+        self.var_Date = StringVar()
 
         # BG
         self.bg = ImageTk.PhotoImage(file="bioID2.png")
@@ -48,9 +49,13 @@ class Services:
 
         resService = Label(res_frame, text="Selected Service", font=("Monserrat", 12, "bold"), padx=25, pady=11).grid(row=3,column=0, sticky=W)
         comboService = ttk.Combobox(res_frame, textvariable=self.var_resService, width=33, font=("Monterrat", 10))
-        comboService["values"]=("Barangay Certificate", "Anti-Rabies Vaccination", "House Number", "Senior Citizen Subsidy")
+        comboService["values"]=("", "Barangay Certificate", "Anti-Rabies Vaccination", "House Number", "Senior Citizen Subsidy")
         comboService.current(0)
         comboService.grid(row=3, column=0, padx=2, pady=10)
+
+        Date = Label(res_frame, text="Date", font=("Monserrat", 12, "bold"), padx=25, pady=11).grid(row=4, column=0, sticky=W)
+        entry_Date = ttk.Entry(res_frame, textvariable=self.var_Date, width=35, font=("Monterrat", 10))
+        entry_Date.grid(row=4, column=0)
 
         # Buttons
         btn_s1 = Button(root, text="Verify", font=("Montserrat", 12, "bold"), bg="black", fg="white").place(x=430, y=235, width=100, height=30)
@@ -58,10 +63,10 @@ class Services:
         btn_s3 = Button(root, text="Verify", font=("Montserrat", 12, "bold"), bg="black", fg="white").place(x=430, y=325, width=100, height=30)
         btn_s4 = Button(root, text="Verify", font=("Montserrat", 12, "bold"), bg="black", fg="white").place(x=430, y=370, width=100, height=30)
 
-        btn_add = Button(root, command=self.save_data, text="Add", font=("Montserrat", 12, "bold"), bg="black", fg="white").place(x=630, y=380, width=120, height=40)
-        btn_update = Button(root, command=self.update_data, text="Edit", font=("Montserrat", 12, "bold"), bg="black", fg="white").place(x=775, y=380, width=120, height=40)
-        btn_delete = Button(root, command=self.delete_data, text="Delete", font=("Montserrat", 12, "bold"), bg="black", fg="white").place(x=925, y=380, width=120, height=40)
-        btn_reset = Button(root, command=self.reset_data, text="Reset", font=("Montserrat", 12, "bold"), bg="black", fg="white").place(x=1075, y=380, width=120, height=40)
+        btn_add = Button(root, command=self.save_data, text="Add", font=("Montserrat", 12, "bold"), bg="black", fg="white").place(x=1090, y=235, width=100, height=30)
+        btn_update = Button(root, command=self.update_data, text="Edit", font=("Montserrat", 12, "bold"), bg="black", fg="white").place(x=1090, y=280, width=100, height=30)
+        btn_delete = Button(root, command=self.delete_data, text="Delete", font=("Montserrat", 12, "bold"), bg="black", fg="white").place(x=1090, y=325, width=100, height=30)
+        btn_reset = Button(root, command=self.reset_data, text="Reset", font=("Montserrat", 12, "bold"), bg="black", fg="white").place(x=1090, y=370, width=100, height=30)
 
         # back
         back = Image.open(r"C:\Users\Florence\PycharmProjects\pythonProject\venv\back.png")
@@ -76,7 +81,7 @@ class Services:
         scroll_x = ttk.Scrollbar(table_frame, orient=HORIZONTAL)
         scroll_y = ttk.Scrollbar(table_frame, orient=VERTICAL)
 
-        self.resident_table = ttk.Treeview(table_frame, column=("resNum", "resName", "resService"), xscrollcommand=scroll_x.set,yscrollcommand=scroll_y.set)
+        self.resident_table = ttk.Treeview(table_frame, column=("resNum", "resName", "resService", "Date"), xscrollcommand=scroll_x.set,yscrollcommand=scroll_y.set)
         scroll_x.pack(side=BOTTOM, fill=X)
         scroll_y.pack(side=RIGHT, fill=Y)
         scroll_x.config(command=self.resident_table.xview)
@@ -85,28 +90,31 @@ class Services:
         self.resident_table.heading("resNum", text="Resident No.")
         self.resident_table.heading("resName", text="Name")
         self.resident_table.heading("resService", text="Chosen Service")
+        self.resident_table.heading("Date", text="Date")
         self.resident_table["show"] = "headings"
         self.resident_table.pack(fill=BOTH, expand=1)
 
         self.resident_table.column("resNum", anchor=CENTER, width=100)
         self.resident_table.column("resName", anchor=CENTER, width=100)
         self.resident_table.column("resService", anchor=CENTER, width=100)
+        self.resident_table.column("Date", anchor=CENTER, width=100)
 
         self.resident_table.bind("<ButtonRelease>", self.get_cursor)
         self.fetch_data()
 
     # Function Declaration = yung pagstore ng input data sa db
     def save_data(self):
-        if self.var_resNum.get() == "" or self.var_resName.get() == "" or self.var_resService.get() == "":
+        if self.var_resNum.get() == "" or self.var_resName.get() == "" or self.var_resService.get() == "" or self.var_Date.get() == "":
             messagebox.showerror("Error", "All Fields are required.", parent=self.root)
         else:
             try:
                 conn = mysql.connector.connect(host="localhost", username="root", password="Mamadaw12!",database="bioid")
                 my_cursor = conn.cursor()
-                my_cursor.execute("insert into service values(%s,%s,%s)", (
+                my_cursor.execute("insert into service values(%s,%s,%s,%s)", (
                                                                             self.var_resNum.get(),
                                                                             self.var_resName.get(),
-                                                                            self.var_resService.get()
+                                                                            self.var_resService.get(),
+                                                                            self.var_Date.get()
                 ))
                 conn.commit()
                 self.fetch_data()
@@ -138,11 +146,12 @@ class Services:
 
         self.var_resNum.set(data[0]),
         self.var_resName.set(data[1]),
-        self.var_resService.set(data[2])
+        self.var_resService.set(data[2]),
+        self.var_Date.set(data[3])
 
     # update function
     def update_data(self):
-        if self.var_resNum.get() == "" or self.var_resName.get() == "" or self.var_resService.get() == "":
+        if self.var_resNum.get() == "" or self.var_resName.get() == "" or self.var_resService.get() == "" or self.var_Date.get() == "":
             messagebox.showerror("Error", "Select a specific resident.", parent=self.root)
         else:
             try:
@@ -150,15 +159,16 @@ class Services:
                 if update>0:
                     conn = mysql.connector.connect(host="localhost", username="root", password="Mamadaw12!", database="bioid")
                     my_cursor = conn.cursor()
-                    my_cursor.execute("update service set Name=%s,Service=%s where ResNum=%s",(
+                    my_cursor.execute("update service set Name=%s,Service=%s,Date=%s where ResNum=%s",(
                                                                                             self.var_resName.get(),
                                                                                             self.var_resService.get(),
+                                                                                            self.var_Date.get(),
                                                                                             self.var_resNum.get()
                                                                                         ))
                 else:
                     if not update:
                         return
-                messagebox.showinfo("Success", "update has been successfully completed.", parent=self.root)
+                messagebox.showinfo("Success", "Update has been successfully completed.", parent=self.root)
                 conn.commit()
                 self.fetch_data()
                 conn.close()
@@ -196,6 +206,7 @@ class Services:
         self.var_resNum.set("")
         self.var_resName.set("")
         self.var_resService.set("")
+        self.var_Date.set("")
 
 
 
