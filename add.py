@@ -1,7 +1,9 @@
+import tkinter as tk
 from tkinter import*
 from PIL import Image, ImageTk
 from tkinter import ttk
 from tkinter import messagebox
+from tkcalendar import DateEntry
 import mysql.connector
 
 
@@ -45,13 +47,13 @@ class Add:
         # DOB
         lbl_dob = Label(lblframe, text="Date of Birth", font=("Monserrat", 12, "bold"), padx=5, pady=10)
         lbl_dob.grid(row=2, column=0, sticky=W)
-        entry_dob = ttk.Entry(lblframe, textvariable=self.var_dob, width=25, font=("Monterrat", 10))
+        entry_dob = DateEntry(lblframe, textvariable=self.var_dob, selectmode='day', year=2021, width=26)
         entry_dob.grid(row=2, column=1, sticky=W)
 
         # Sex
         lbl_sex = Label(lblframe, text="Sex", font=("Monserrat", 12, "bold"), padx=5, pady=10)
         lbl_sex.grid(row=3, column=0, sticky=W)
-        combo_sex = ttk.Combobox(lblframe, textvariable=self.var_sex, width=22, font=("Monterrat", 10))
+        combo_sex = ttk.Combobox(lblframe, textvariable=self.var_sex, width=22, font=("Monterrat", 10), state = "readonly")
         combo_sex["values"] = ("", "Male", "Female")
         combo_sex.current(0)
         combo_sex.grid(row=3, column=1, padx=2, pady=10)
@@ -81,7 +83,7 @@ class Add:
         entry_addrs.grid(row=7, column=1, sticky=W)
 
         # Buttons
-        btn_capture = Button(root, text="Take a picture", font=("Montserrat", 12, "bold"), bg="black", fg="white")
+        btn_capture = Button(root, text="Take picture", font=("Montserrat", 12, "bold"), bg="black", fg="white")
         btn_capture.place(x=11, y=575, width=338, height=80)
 
         btn_train = Button(root, text="Train", font=("Montserrat", 12, "bold"), bg="black", fg="white")
@@ -269,13 +271,6 @@ class Add:
         self.var_num.set("")
         self.var_email.set("")
         self.var_address.set("")
-
-
-
-
-
-
-
 
 
 if __name__ == "__main__":
