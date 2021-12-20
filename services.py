@@ -1,7 +1,9 @@
+import tkinter as tk
 from tkinter import*
 from PIL import Image, ImageTk
 from tkinter import ttk
 from tkinter import messagebox
+from tkcalendar import DateEntry
 import mysql.connector
 
 class Services:
@@ -48,13 +50,13 @@ class Services:
         entry_resName.grid(row=2, column=0)
 
         resService = Label(res_frame, text="Selected Service", font=("Monserrat", 12, "bold"), padx=25, pady=11).grid(row=3,column=0, sticky=W)
-        comboService = ttk.Combobox(res_frame, textvariable=self.var_resService, width=33, font=("Monterrat", 10))
+        comboService = ttk.Combobox(res_frame, textvariable=self.var_resService, width=33, font=("Monterrat", 10), state = "readonly")
         comboService["values"]=("", "Barangay Certificate", "Anti-Rabies Vaccination", "House Number", "Senior Citizen Subsidy")
         comboService.current(0)
         comboService.grid(row=3, column=0, padx=2, pady=10)
 
         Date = Label(res_frame, text="Date", font=("Monserrat", 12, "bold"), padx=25, pady=11).grid(row=4, column=0, sticky=W)
-        entry_Date = ttk.Entry(res_frame, textvariable=self.var_Date, width=35, font=("Monterrat", 10))
+        entry_Date = DateEntry(res_frame, textvariable=self.var_Date, selectmode='day', year=2021, width=38)
         entry_Date.grid(row=4, column=0)
 
         # Buttons
@@ -207,14 +209,6 @@ class Services:
         self.var_resName.set("")
         self.var_resService.set("")
         self.var_Date.set("")
-
-
-
-
-
-
-
-
 
 
 
