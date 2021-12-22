@@ -1,10 +1,12 @@
-import tkinter as tk
 from tkinter import*
 from PIL import Image, ImageTk
 from tkinter import ttk
 from tkinter import messagebox
-from tkcalendar import DateEntry
 import mysql.connector
+import cv2
+import numpy as np
+import os
+
 
 class Services:
     def __init__(self, root):
@@ -50,28 +52,29 @@ class Services:
         entry_resName.grid(row=2, column=0)
 
         resService = Label(res_frame, text="Selected Service", font=("Monserrat", 12, "bold"), padx=25, pady=11).grid(row=3,column=0, sticky=W)
-        comboService = ttk.Combobox(res_frame, textvariable=self.var_resService, width=33, font=("Monterrat", 10), state = "readonly")
+        comboService = ttk.Combobox(res_frame, textvariable=self.var_resService, width=33, font=("Monterrat", 10))
         comboService["values"]=("", "Barangay Certificate", "Anti-Rabies Vaccination", "House Number", "Senior Citizen Subsidy")
         comboService.current(0)
         comboService.grid(row=3, column=0, padx=2, pady=10)
 
         Date = Label(res_frame, text="Date", font=("Monserrat", 12, "bold"), padx=25, pady=11).grid(row=4, column=0, sticky=W)
-        entry_Date = DateEntry(res_frame, textvariable=self.var_Date, selectmode='day', year=2021, width=38)
+        entry_Date = ttk.Entry(res_frame, textvariable=self.var_Date, width=35, font=("Monterrat", 10))
         entry_Date.grid(row=4, column=0)
 
         # Buttons
-        btn_s1 = Button(root, text="Verify", font=("Montserrat", 12, "bold"), bg="black", fg="white").place(x=430, y=235, width=100, height=30)
-        btn_s2 = Button(root, text="Verify", font=("Montserrat", 12, "bold"), bg="black", fg="white").place(x=430, y=280, width=100, height=30)
-        btn_s3 = Button(root, text="Verify", font=("Montserrat", 12, "bold"), bg="black", fg="white").place(x=430, y=325, width=100, height=30)
-        btn_s4 = Button(root, text="Verify", font=("Montserrat", 12, "bold"), bg="black", fg="white").place(x=430, y=370, width=100, height=30)
+        btn_s1 = Button(root, text="Verify", command=self.face_recog, font=("Montserrat", 12, "bold"), bg="black", fg="white").place(x=430, y=235, width=100, height=30)
+        btn_s2 = Button(root, text="Verify", command=self.face_recog, font=("Montserrat", 12, "bold"), bg="black", fg="white").place(x=430, y=280, width=100, height=30)
+        btn_s3 = Button(root, text="Verify", command=self.face_recog, font=("Montserrat", 12, "bold"), bg="black", fg="white").place(x=430, y=325, width=100, height=30)
+        btn_s4 = Button(root, text="Verify", command=self.face_recog, font=("Montserrat", 12, "bold"), bg="black", fg="white").place(x=430, y=370, width=100, height=30)
 
         btn_add = Button(root, command=self.save_data, text="Add", font=("Montserrat", 12, "bold"), bg="black", fg="white").place(x=1090, y=235, width=100, height=30)
         btn_update = Button(root, command=self.update_data, text="Edit", font=("Montserrat", 12, "bold"), bg="black", fg="white").place(x=1090, y=280, width=100, height=30)
         btn_delete = Button(root, command=self.delete_data, text="Delete", font=("Montserrat", 12, "bold"), bg="black", fg="white").place(x=1090, y=325, width=100, height=30)
         btn_reset = Button(root, command=self.reset_data, text="Reset", font=("Montserrat", 12, "bold"), bg="black", fg="white").place(x=1090, y=370, width=100, height=30)
 
+
         # back
-        back = Image.open(r"C:\Users\Florence\PycharmProjects\pythonProject\venv\back.png")
+        back = Image.open(r"back.png")
         back = back.resize((70, 70), Image.ANTIALIAS)
         self.photoback = ImageTk.PhotoImage(back)
         back_btn = Button(root, image=self.photoback, bd=0, cursor="hand2")
@@ -110,7 +113,7 @@ class Services:
             messagebox.showerror("Error", "All Fields are required.", parent=self.root)
         else:
             try:
-                conn = mysql.connector.connect(host="localhost", username="root", password="Mamadaw12!",database="bioid")
+                conn = mysql.connector.connect(host="localhost", username="root", password="1l0v3h0td0g_143",database="bioid")
                 my_cursor = conn.cursor()
                 my_cursor.execute("insert into service values(%s,%s,%s,%s)", (
                                                                             self.var_resNum.get(),
@@ -128,7 +131,7 @@ class Services:
 
     # fetch data = yung saved data sa db, mapupunta doon sa frame (yung naviview yung input data)
     def fetch_data(self):
-        conn = mysql.connector.connect(host="localhost", username="root", password="Mamadaw12!", database="bioid")
+        conn = mysql.connector.connect(host="localhost", username="root", password="1l0v3h0td0g_143", database="bioid")
         my_cursor = conn.cursor()
         my_cursor.execute("select * from service")
         data = my_cursor.fetchall()
@@ -159,7 +162,7 @@ class Services:
             try:
                 update=messagebox.askyesno("Update", "Do you want to update this resident details?", parent=self.root)
                 if update>0:
-                    conn = mysql.connector.connect(host="localhost", username="root", password="Mamadaw12!", database="bioid")
+                    conn = mysql.connector.connect(host="localhost", username="root", password="1l0v3h0td0g_143", database="bioid")
                     my_cursor = conn.cursor()
                     my_cursor.execute("update service set Name=%s,Service=%s,Date=%s where ResNum=%s",(
                                                                                             self.var_resName.get(),
@@ -186,7 +189,7 @@ class Services:
             try:
                 delete = messagebox.askyesno("Delete Resident", "Do you want to delete this resident?",parent=self.root)
                 if delete > 0:
-                    conn = mysql.connector.connect(host="localhost", username="root", password="Mamadaw12!",database="bioid")
+                    conn = mysql.connector.connect(host="localhost", username="root", password="1l0v3h0td0g_143",database="bioid")
                     my_cursor = conn.cursor()
                     sql="delete from service where ResNum=%s"
                     val=(self.var_resNum.get(),)
@@ -211,13 +214,55 @@ class Services:
         self.var_Date.set("")
 
 
+    def face_recog(self):
+        def draw_boundary(img, classifier, scaleFactor, minNeighbors, color, text, clf):
+            gray_image = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+            features = classifier.detectMultiScale(gray_image, scaleFactor, minNeighbors)
 
+            coord = []
 
+            for (x, y, w, h) in features:
+                cv2.rectangle(img(x, y), (x + w, y + h), (0, 255, 0), 3)
+                id, predict = clf.predict(gray_image[y:y + h, x:x + w])
+                confidence = int((100 * (1 - predict / 300)))
 
+                conn = mysql.connector.connect(host="localhost", username="root", password="1l0v3h0td0g_143",
+                                               database="bioid")
+                my_cursor = conn.cursor()
 
+                my_cursor.execute("select from resident where ResNum=%s")
+                i = my_cursor.fetchone()
+                i = "+".join(i)
 
+                if confidence > 77:
+                    cv2.putText(img, f"resident:{i}", (x, y - 55), cv2.FONT_HERSHEY_COMPLEX, 0.8, (255, 255, 255), 3)
+                else:
+                    cv2.rectangle(img(x, y), (x + w, y + h), (0, 0, 255), 3)
+                    cv2.putText(img, f"resident:{i}", (x, y - 5), cv2.FONT_HERSHEY_COMPLEX, 0.8, (255, 255, 255), 3)
 
+                coord = [x, y, w, y]
 
+            return coord
+
+        def recognize(img, clf, faceCascade):
+            coord = draw_boundary(img, faceCascade, 1.1, 10, (255, 25, 255), "Face", clf)
+            return img
+
+        faceCascade = cv2.CascadeClassifier("haarcascade_frontalface_default.xml")
+        clf = cv2.face.LBPHFaceRecognizer_create()
+        clf.read("classifier.xml")
+
+        video_cap = cv2.VideoCapture(0)
+
+        while True:
+            ret, img = video_cap.read()
+            img = recognize(img, clf, faceCascade)
+            cv2.imshow("Welcome daw", img)
+
+            if cv2.waitKey(1) == 13:
+                break
+        video_cap.release()
+        cv2.destroyAllWindows()
 
 
 
