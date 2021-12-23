@@ -222,7 +222,7 @@ class Services:
             coord = []
 
             for (x, y, w, h) in features:
-                cv2.rectangle(img(x, y), (x + w, y + h), (0, 255, 0), 3)
+                cv2.rectangle(img,(x, y), (x + w, y + h), (0, 255, 0), 3)
                 id, predict = clf.predict(gray_image[y:y + h, x:x + w])
                 confidence = int((100 * (1 - predict / 300)))
 
@@ -230,22 +230,27 @@ class Services:
                                                database="bioid")
                 my_cursor = conn.cursor()
 
-                my_cursor.execute("select from resident where ResNum=%s")
+                my_cursor.execute("select resNum from resident where ResNum="+str(id))
                 i = my_cursor.fetchone()
-                i = "+".join(i)
+                i = "".join(str(i))
+
+                my_cursor.execute("select Name from resident where ResNum=" + str(id))
+                n = my_cursor.fetchone()
+                n = "+".join(n)
 
                 if confidence > 77:
-                    cv2.putText(img, f"resident:{i}", (x, y - 55), cv2.FONT_HERSHEY_COMPLEX, 0.8, (255, 255, 255), 3)
+                    cv2.putText(img, f"Resident:{i}", (x, y - 55), cv2.FONT_HERSHEY_COMPLEX, 0.8, (255, 255, 255), 2)
+                    cv2.putText(img, f"Name:{n}", (x, y - 30), cv2.FONT_HERSHEY_COMPLEX, 0.8, (255, 255, 255), 2)
                 else:
-                    cv2.rectangle(img(x, y), (x + w, y + h), (0, 0, 255), 3)
-                    cv2.putText(img, f"resident:{i}", (x, y - 5), cv2.FONT_HERSHEY_COMPLEX, 0.8, (255, 255, 255), 3)
+                    cv2.rectangle(img,(x, y), (x + w, y + h), (0, 0, 255), 3)
+                    cv2.putText(img, "Unknown Face", (x, y - 5), cv2.FONT_HERSHEY_COMPLEX, 0.8, (255, 255, 255), 2)
 
                 coord = [x, y, w, y]
 
             return coord
 
         def recognize(img, clf, faceCascade):
-            coord = draw_boundary(img, faceCascade, 1.1, 10, (255, 25, 255), "Face", clf)
+            coordi = draw_boundary(img, faceCascade, 1.1, 10, (255, 25, 255), "Face", clf)
             return img
 
         faceCascade = cv2.CascadeClassifier("haarcascade_frontalface_default.xml")
@@ -259,7 +264,7 @@ class Services:
             img = recognize(img, clf, faceCascade)
             cv2.imshow("Welcome daw", img)
 
-            if cv2.waitKey(1) == 13:
+            if cv2.waitKey(1) == ord('q'):
                 break
         video_cap.release()
         cv2.destroyAllWindows()
