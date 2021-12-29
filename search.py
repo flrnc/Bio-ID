@@ -3,6 +3,10 @@ from tkinter import ttk
 from PIL import Image, ImageTk
 import mysql.connector
 from tkinter import messagebox
+import cv2
+import numpy as np
+import os
+
 
 class Search:
     def __init__(self, root):
@@ -26,7 +30,7 @@ class Search:
         face_frame = LabelFrame(self.root, bd=2, relief=RIDGE)
         face_frame.place(x=25, y=170, width=1200, height=170)
         title_face = Label(face_frame, text="Search through Face Recognition", font=("Monserrat", 15, "bold"), padx=425, pady=15).grid(row=0,column=0)
-        btn_face = Button(root, text="Open Camera", font=("Montserrat", 12, "bold"), bg="black", fg="white").place(x=35, y=230, width=1180, height=100)
+        btn_face = Button(root, text="Open Camera", command=self.face_recog, font=("Montserrat", 12, "bold"), bg="black", fg="white").place(x=35, y=230, width=1180, height=100)
 
         # Search LabelFrame
         table_search = LabelFrame(self.root, bd=2, relief=RIDGE)
@@ -147,6 +151,67 @@ class Search:
     def clear_data(self):
         self.var_search.set("")
         self.txt_search.set("")
+
+    # search through face recognition
+    def face_recog(self):
+        def draw_boundary(img,classifier,scaleFactor,minNeighbors,color,text,clf):
+            # convert to gray scale
+            gray_image = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+            # detect the face
+            features = classifier.detectMultiScale(gray_image,scaleFactor,minNeighbors)
+
+            coord = []  #to draw the rectangle
+
+            for (x,y,w,h) in features:
+                cv2.rectangle(img,(x,y),(x+w,y+h),(0,255,0),3)
+                # predict - predict the labels of the data values on the basis of the trained model
+                # try to recognize the face
+                id,predict = clf.predict(gray_image[y:y+h, x:x+w])
+                confidence = int((100 * (1 - predict / 300)))
+
+                # connect to mysql
+                conn = mysql.connector.connect(host="localhost", username="root", password="Mamadaw12!", database="bioid")
+                my_cursor = conn.cursor()
+
+                my_cursor.execute("select ResNum from resident where ResNum="+str(id))
+                i = my_cursor.fetchone()
+                i = "+".join(map(str, (i)))
+
+                my_cursor.execute("select Name from resident where ResNum="+str(id))
+                j = my_cursor.fetchone()
+                j = "+".join(map(str, (j)))
+
+                if confidence > 77:
+                    cv2.putText(img, f"Resident No.:{i}", (x,y-55), cv2.FONT_HERSHEY_COMPLEX, 0.8, (255, 255, 255), 3)
+                    cv2.putText(img, f"Name:{j}", (x,y-30), cv2.FONT_HERSHEY_COMPLEX, 0.8, (255, 255, 255), 3)
+                else:
+                    cv2.rectangle(img,(x,y), (x+w,y+h), (0,0,255), 3)
+                    cv2.putText(img, "Unknown Face", (x,y-5), cv2.FONT_HERSHEY_COMPLEX, 0.8, (255, 255, 255), 3)
+
+                coord = [x,y,w,y]
+
+            return coord
+
+        def recognize(img, clf, faceCascade):
+            coord = draw_boundary(img,faceCascade,1.1,10,(255,25,255),"Face",clf)
+            return img
+
+        faceCascade = cv2.CascadeClassifier("haarcascade_frontalface_default.xml") # call the face detector
+        clf = cv2.face.LBPHFaceRecognizer_create()
+        clf.read("classifier.xml") # load the classifier containing the trained faces and ids
+
+        video_cap = cv2.VideoCapture(0) # open camera
+
+        while True:
+            ret, img = video_cap.read() # reading frames which is tored in img
+            img = recognize(img,clf,faceCascade)
+            cv2.imshow("Welcome",img)
+
+            if cv2.waitKey(1) == ord('q'):
+                break
+
+        video_cap.release()
+        cv2.destroyAllWindows()
 
 if __name__ == "__main__":
     root = Tk()
