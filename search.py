@@ -19,13 +19,6 @@ class Search:
         self.bg = ImageTk.PhotoImage(file="bioID2.png")
         self.bg_image = Label(self.root, image=self.bg).place(x=0, y=0, relwidth=1, relheight=1)
 
-        # back
-        back = Image.open(r"C:\Users\Florence\PycharmProjects\pythonProject\venv\back.png")
-        back = back.resize((70, 70), Image.ANTIALIAS)
-        self.photoback = ImageTk.PhotoImage(back)
-        back_btn = Button(root, image=self.photoback, bd=0, cursor="hand2")
-        back_btn.place(x=20, y=34, width=70, height=70)
-
         # Face Recognition LabelFrame
         face_frame = LabelFrame(self.root, bd=2, relief=RIDGE)
         face_frame.place(x=25, y=170, width=1200, height=170)
@@ -155,17 +148,16 @@ class Search:
     # search through face recognition
     def face_recog(self):
         def draw_boundary(img,classifier,scaleFactor,minNeighbors,color,text,clf):
-            # convert to gray scale
-            gray_image = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
-            # detect the face
-            features = classifier.detectMultiScale(gray_image,scaleFactor,minNeighbors)
+            gray_image = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY) # convert to gray scale
+            features = classifier.detectMultiScale(gray_image,scaleFactor,minNeighbors) # detect the face
 
-            coord = []  #to draw the rectangle
+            coord = []  # corrdinates of rectangle
 
+            # iterate in each detected face through (features)
             for (x,y,w,h) in features:
-                cv2.rectangle(img,(x,y),(x+w,y+h),(0,255,0),3)
+                cv2.rectangle(img,(x,y),(x+w,y+h),(0,255,0),3) # draw rectangle
                 # predict - predict the labels of the data values on the basis of the trained model
-                # try to recognize the face
+                # predicting the user based on id
                 id,predict = clf.predict(gray_image[y:y+h, x:x+w])
                 confidence = int((100 * (1 - predict / 300)))
 
@@ -173,15 +165,19 @@ class Search:
                 conn = mysql.connector.connect(host="localhost", username="root", password="Mamadaw12!", database="bioid")
                 my_cursor = conn.cursor()
 
+                # focus on resident number in database
                 my_cursor.execute("select ResNum from resident where ResNum="+str(id))
                 i = my_cursor.fetchone()
                 i = "+".join(map(str, (i)))
 
+                # focus on resident name in database
                 my_cursor.execute("select Name from resident where ResNum="+str(id))
                 j = my_cursor.fetchone()
                 j = "+".join(map(str, (j)))
 
+                # the higher the confidence, the less accurate
                 if confidence > 77:
+                    # to write the predicted resident no. and name
                     cv2.putText(img, f"Resident No.:{i}", (x,y-55), cv2.FONT_HERSHEY_COMPLEX, 0.8, (255, 255, 255), 3)
                     cv2.putText(img, f"Name:{j}", (x,y-30), cv2.FONT_HERSHEY_COMPLEX, 0.8, (255, 255, 255), 3)
                 else:
@@ -192,24 +188,26 @@ class Search:
 
             return coord
 
+        # call the draw boundary
         def recognize(img, clf, faceCascade):
-            coord = draw_boundary(img,faceCascade,1.1,10,(255,25,255),"Face",clf)
+            coord = draw_boundary(img,faceCascade,1.1,10,(255,25,255),"Face",clf) #F
             return img
 
-        faceCascade = cv2.CascadeClassifier("haarcascade_frontalface_default.xml") # call the face detector
-        clf = cv2.face.LBPHFaceRecognizer_create()
+        faceCascade = cv2.CascadeClassifier("haarcascade_frontalface_default.xml") # load the predefined face classifier
+        clf = cv2.face.LBPHFaceRecognizer_create() # load the recognizer
         clf.read("classifier.xml") # load the classifier containing the trained faces and ids
 
         video_cap = cv2.VideoCapture(0) # open camera
 
         while True:
-            ret, img = video_cap.read() # reading frames which is tored in img
-            img = recognize(img,clf,faceCascade)
-            cv2.imshow("Welcome",img)
+            ret, img = video_cap.read() # reading frames which is stored in img
+            img = recognize(img,clf,faceCascade) #call recognize function #F
+            cv2.imshow("Welcome",img) # show window
 
-            if cv2.waitKey(1) == ord('q'):
+            if cv2.waitKey(1) == ord('q'): #press 'q' to close window
                 break
 
+        # stop the camera and destroy
         video_cap.release()
         cv2.destroyAllWindows()
 
