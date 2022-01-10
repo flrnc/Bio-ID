@@ -105,13 +105,6 @@ class Add:
         btn_reset.place(x=870, y=685, width=350, height=80)
 
 
-        # back
-        back = Image.open(r"C:\Users\Florence\PycharmProjects\pythonProject\venv\back.png")
-        back = back.resize((70, 70), Image.ANTIALIAS)
-        self.photoback = ImageTk.PhotoImage(back)
-        back_btn = Button(root, image=self.photoback, bd=0, cursor="hand2")
-        back_btn.place(x=20, y=34, width=70, height=70)
-
         # TableFrame
         table_frame = LabelFrame(self.root, bd=2, relief=RIDGE, text="Resident Details",font=("Monserrat", 15, "bold"), padx=2)
         table_frame.place(x=370, y=150, width=870, height=400)
@@ -286,9 +279,9 @@ class Add:
                 my_cursor = conn.cursor()
                 my_cursor.execute("select * from resident")
                 myresult = my_cursor.fetchall()
-                id=0
+                id = 0
                 for x in myresult:
-                    id+=1
+                    id += 1
                 my_cursor.execute("update resident set Name=%s,DOB=%s,Sex=%s,Nationality=%s,CPNum=%s,Email=%s,Address=%s where ResNum=%s",
                                                                                             (
                                                                                             self.var_name.get(),
@@ -310,23 +303,27 @@ class Add:
 
                 def face_cropped(img):
                     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) #convert to gray scale
-                    faces = face_classifier.detectMultiScale(gray,1.3,5) #detect the face
+                    faces = face_classifier.detectMultiScale(gray,1.3,5) #for detection
                     # scaling factor - how much the image size is reduced at each image scale=1.3
                     # minimum neighbor - how many neighbors each candidate rectangle should have to retain it=5
 
                     # iterate over faces
+                    # x,y - position of the top left corner of the rectangle
+                    # w,h- width and height of the rectangle
                     for (x,y,w,h) in faces:
-                        face_cropped = img[y:y+h, x:x+w] #to draw the rectangle
+                        face_cropped = img[y:y+h, x:x+w] #F #to draw the rectangle around the face
                         return face_cropped
 
-                cap = cv2.VideoCapture(0) # define a video capture object
+                # define a video capture object. this will trigger the camera
+                # 0 for built-in camera. 1 for external camera
+                cap = cv2.VideoCapture(0)
                 img_id = 0 # for samples
                 while True: # while true, if camera is working/opened
                     ret, my_frame = cap.read() # read every frame which will be stored in my_frame
-                    if face_cropped(my_frame) is not None:
+                    if face_cropped(my_frame) is not None: #F
                         img_id += 1 # incrementing sample number
                         # resize frame, INTER_CUBIC - interpolation over 4×4 pixel neighborhood, for enlarging the image
-                        face = cv2.resize(face_cropped(my_frame), (450,450),fx=0,fy=0, interpolation = cv2.INTER_CUBIC)
+                        face = cv2.resize(face_cropped(my_frame), (450,450),fx=0,fy=0, interpolation = cv2.INTER_CUBIC) #F
                         # convert to gray scale
                         face = cv2.cvtColor(face, cv2.COLOR_BGR2GRAY)
                         # saving the captured face image in the dataset folder
@@ -350,27 +347,30 @@ class Add:
 
     # training the image dataset
     def train_classifier(self):
-        data_dir=("data") # image dataset folder
+        data_dir = ("data") # image dataset folder
         # path.join() - combines path names into one complete path
         # listdir() - to get the list of all files and directories in the specified directory
-        path=[os.path.join(data_dir,file) for file in os.listdir(data_dir)]
-        # initialize lists to store extracted faces and associated ids
-        faces=[]
-        ids=[]
+        # access the list of folders or directories of training images inside the dataset image folder
+        path = [os.path.join(data_dir,file) for file in os.listdir(data_dir)]
+        # initialize empty lists to store extracted faces and associated ids
+        faces = []
+        ids = []
 
+        # iterate through the dataset folder
         for image in path:
-            img=Image.open(image).convert('L') #convert image to gray scale
-            imageNp=np.array(img, 'uint8')
-            id=int(os.path.split(image)[1].split('.')[1])
+            img = Image.open(image).convert('L') #open the image and convert to gray scale
+            imageNp = np.array(img, 'uint8') # convert to numpy array because opencv only works with numpy array
+            id = int(os.path.split(image)[1].split('.')[1]) # to get the user id in the image dataset
 
+            # append the image and id to the above two lists
             faces.append(imageNp)
             ids.append(id)
-            cv2.imshow("Training",imageNp)
+            cv2.imshow("Training",imageNp) # to show the images
             cv2.waitKey(1) == 13
-        ids=np.array(ids)
+        ids = np.array(ids) # convert to numpy array
 
         # Train the classifier and save
-        clf=cv2.face.LBPHFaceRecognizer_create()
+        clf = cv2.face.LBPHFaceRecognizer_create() # load the recognizer
         clf.train(faces,ids) # training the classifier using .train
         clf.write("classifier.xml") # after training, store the classifier in xml file
         cv2.destroyAllWindows() # destory the window
